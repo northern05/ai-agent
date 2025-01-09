@@ -18,7 +18,7 @@ class RedisSettings(BaseSettings):
     REDIS_PORT: str = ""
     REDIS_USER: str = ""
     REDIS_PASSWORD: str = ""
-    REDIS_URL: str = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+    REDIS_URL: str = f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
 
 
 class TelegramSettings(BaseSettings):
