@@ -8,16 +8,16 @@ COOKIE_SESSION_ID_KEY: str = os.environ.get("COOKIE_SESSION_ID_KEY", "agent-sess
 class Config(BaseSettings):
     api_v1_prefix: str = "/api/v1"
 
-    APP_DOMAIN: str = "localhost"
-    WEB3_PROVIDER: str = "localhost"
-    OPENAI_API_KEY: str = ""
+    APP_DOMAIN: str = "api.agent.zpoken.dev"
+    WEB3_PROVIDER: str = "https://1rpc.io/sepolia"
+    OPENAI_API_KEY: str = os.environ.get("OPENAI_API_KEY")
 
 
 class RedisSettings(BaseSettings):
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: str = ""
-    REDIS_USER: str = ""
-    REDIS_PASSWORD: str = ""
+    REDIS_HOST: str = os.environ.get('REDIS_HOST')
+    REDIS_PORT: str = os.environ.get('REDIS_PORT')
+    REDIS_USER: str = os.environ.get('REDIS_USER')
+    REDIS_PASSWORD: str = os.environ.get('REDIS_PASSWORD')
     REDIS_URL: str = f"redis://{REDIS_USER}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}"
     print(REDIS_URL)
 
@@ -28,11 +28,11 @@ class TelegramSettings(BaseSettings):
 
 
 class DBSettings(BaseSettings):
-    DB_NAME: str = ""
-    DB_USER: str = ""
-    DB_HOST: str = "localhost"
-    DB_PORT: str = "5432"
-    DB_PW: str = ""
+    DB_NAME: str = os.environ.get("DB_NAME")
+    DB_USER: str = os.environ.get("DB_USER")
+    DB_HOST: str = os.environ.get("DB_HOST")
+    DB_PORT: str = os.environ.get("DB_PORT")
+    DB_PW: str = os.environ.get("DB_PW")
 
     SQLALCHEMY_DATABASE_URL: str = (
         f"postgresql+asyncpg://{DB_USER}:{DB_PW}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
