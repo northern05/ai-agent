@@ -54,7 +54,7 @@ services:
     container_name:
       dev-back-agent
     ports:
-      - "6010:5000"
+      - "6010:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
