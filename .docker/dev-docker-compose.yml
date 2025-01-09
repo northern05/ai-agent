@@ -5,6 +5,8 @@ services:
     image: redis/redis-stack:latest
     container_name:
       redis-agent
+    env_file:
+      - ../.envs/.dev
     environment:
       REDIS_ARGS: "--requirepass ${REDIS_PASSWORD} --user ${REDIS_USER} on >${REDIS_PASSWORD} ~* allcommands --user default off nopass nocommands"
     ports:
@@ -21,6 +23,8 @@ services:
 
   postgres-agent:
     image: postgres:latest
+    env_file:
+      - ../.envs/.dev
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
@@ -50,7 +54,7 @@ services:
     container_name:
       dev-back-agent
     ports:
-      - "6010:8000"
+      - "6010:5000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
