@@ -52,7 +52,7 @@ async def get_nonce(
         redis_db.set(session_id, pickle.dumps(session_info))
 
         response.set_cookie(
-            key=Config.COOKIE_SESSION_ID_KEY,
+            key=COOKIE_SESSION_ID_KEY,
             value=session_id,
             samesite='none',
             secure=True,

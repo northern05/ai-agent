@@ -84,11 +84,8 @@ class ChatContext:
 async def process_chat_request(
         data_in: DataIn,
         chat: ExtendedChatSchema = Depends(get_extended_chat_by_uuid),
-        # user: User = Depends(auth_dependencies.extract_user_from_access_token),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> ChatResponse:
-    if not data_in.generate_code:
-        data_in.generate_code = []
     context = ChatContext(
         current_input=data_in.message,
         current_dt=datetime.datetime.now(),
@@ -109,6 +106,45 @@ async def process_chat_request(
     }
     chat.history.append(_user_message)
 
+    # llm_response = await process_user_message(
+    #     message=data_in.message
+    # )
+
+    timestamp = int(datetime.datetime.now().timestamp() * 1000)
+    res = ChatResponse(
+        exec_logs="",
+        body="mocked msg",
+        decision="reject",
+        timestamp=timestamp
+    )
+
+    chat.history.append({
+        "role": "system",
+        "content": "mocked msg",
+        "parts": ["mocked msg"],
+        "timestamp": timestamp,
+        "decision": "reject"
+    })
+
+    redis_db.set(chat.uuid, jsonpickle.encode(chat.history))
+
+    return res
+
+async def process_test_msg(
+        data_in: DataIn,
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+) -> ChatResponse:
+    if not data_in.message:
+        raise HTTPException(
+            detail="No needed data received",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    _user_message = {
+        "role": "user",
+        "content": data_in.message,
+        "parts": [data_in.message],
+        "timestamp": data_in.timestamp
+    }
     llm_response = await process_user_message(
         message=data_in.message
     )
@@ -121,18 +157,7 @@ async def process_chat_request(
         timestamp=timestamp
     )
 
-    chat.history.append({
-        "role": "system",
-        "content": llm_response.text,
-        "parts": [llm_response.text],
-        "timestamp": timestamp,
-        "decision": llm_response.decision
-    })
-
-    redis_db.set(chat.uuid, jsonpickle.encode(chat.history))
-
     return res
-
 
 request_actions = {
     "askUserAddress()": "askUserAddress()",

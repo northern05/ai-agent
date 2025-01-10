@@ -1,11 +1,11 @@
-import redis
+from redis.asyncio import Redis
 from web3 import Web3, HTTPProvider
 from openai import OpenAI
 
 from app.core.config import config, redis_config, tg_conf
 from utils import telegram_bot
 
-redis_db = redis.Redis(
+redis_db = Redis(
     host=redis_config.REDIS_HOST,
     port=redis_config.REDIS_PORT,
     username=redis_config.REDIS_USER,

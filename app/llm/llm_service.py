@@ -6,8 +6,8 @@ from app.core.modules_factory import openai_client
 def answer_users_msg(msg: str):
     try:
         # Call OpenAI's GPT-4 API
-        response = openai_client.ChatCompletion.create(
-            model="gpt-4",
+        response = openai_client.chat.completions.with_raw_response.create(
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
                 {"role": "user", "content": msg},

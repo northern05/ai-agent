@@ -2,7 +2,6 @@ import logging
 import traceback
 
 from contextlib import asynccontextmanager
-import redis.asyncio as redis
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -23,12 +22,12 @@ async def lifespan(app: FastAPI):
     # scheduler = BackgroundScheduler()
     # scheduler.add_job(check_transactions_status, "cron", second='*/30')
     # scheduler.start()
-    redis_connection = redis.from_url(redis_config.REDIS_URL, encoding="utf8")
 
     print("Started lifespan")
-    await FastAPILimiter.init(redis_connection)
+    async with db_helper.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     yield
-    await FastAPILimiter.close()
     print("End lifespan")
 
 
