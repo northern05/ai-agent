@@ -17,7 +17,7 @@ class MessageCreate(MessageBase):
 class MessageSchema(MessageBase):
     model_config = ConfigDict(from_attributes=True)
     created_at: datetime.datetime
-    user_id: str
+    user_id: int
     decision: str
     response: str
     content: str

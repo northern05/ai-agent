@@ -6,7 +6,7 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.auth import dependencies as auth_dependencies
-from app.core.models import db_helper, User
+from app.core.models import db_helper, User, Message
 from . import crud
 from .schemas import MessageSchema, DataIn, MessageResponse
 from app.core.modules_factory import smc_driver
@@ -33,7 +33,7 @@ async def process_users_message(
     llm_response = await process_user_message(
         message=data_in.message
     )
-    msg = MessageSchema(
+    msg = Message(
         user_id=user.id,
         decision=llm_response.decision,
         response=llm_response.text,

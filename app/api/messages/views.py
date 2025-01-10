@@ -23,7 +23,6 @@ logger = logging.getLogger('chats/views')
 )
 async def get_all_chats(
         objects_filter: str = Query(default=''),
-        user: User = Depends(auth_dependencies.extract_user_from_access_token),
         pagination_query: PaginatedParams = Depends(),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
@@ -32,7 +31,6 @@ async def get_all_chats(
     res = await crud.get_all(
         session=session,
         pagination_query=pagination_query,
-        user_id=user.id,
         filter_query=objects_filter
     )
     return res

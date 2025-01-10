@@ -19,8 +19,7 @@ message_query_filters = {
 async def get_all(
         session: AsyncSession,
         pagination_query: PaginatedParams,
-        filter_query: str,
-        user_id: int = None
+        filter_query: str
 ) -> PaginatedResponse[MessageSchema]:
     filter_inst = MessageFilter(Message, message_query_filters)
     stmt = filter_inst.get_query(filter_query)
@@ -46,7 +45,7 @@ class MessageFilter(FilterCore):
         )
 
 
-async def create(session: AsyncSession, user_id: int, message: MessageSchema) -> Message | None:
+async def create(session: AsyncSession, user_id: int, message: Message) -> Message | None:
     message = Message(
         created_at=datetime.now(),
         user_id=user_id,
