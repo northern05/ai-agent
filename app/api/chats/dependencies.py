@@ -86,6 +86,12 @@ async def process_chat_request(
         chat: ExtendedChatSchema = Depends(get_extended_chat_by_uuid),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> ChatResponse:
+    if not data_in.message or not data_in.msg_hash:
+        raise HTTPException(
+            detail="No needed data received",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
     context = ChatContext(
         current_input=data_in.message,
         current_dt=datetime.datetime.now(),
@@ -93,11 +99,7 @@ async def process_chat_request(
         minimized_history=_init_chatbot_history_context(chat),
         chat_id=chat.uuid
     )
-    if not data_in.message:
-        raise HTTPException(
-            detail="No needed data received",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
+
     _user_message = {
         "role": "user",
         "content": data_in.message,

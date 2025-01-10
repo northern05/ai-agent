@@ -55,3 +55,4 @@ class DataIn(BaseModel):
     context_data: dict | None = None
     message: str
     timestamp: int
+    msg_hash: str
