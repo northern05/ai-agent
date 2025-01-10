@@ -86,15 +86,6 @@ async def demo_chat(
 ):
     return response
 
-@router.post(
-    "/llm/test",
-    status_code=status.HTTP_200_OK,
-)
-async def llm_test(
-        response=Depends(dependencies.process_test_msg)
-):
-    return response
-
 
 @router.delete(
     "/{chat_uuid}",
