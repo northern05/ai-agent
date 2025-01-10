@@ -7,10 +7,14 @@ logger = logging.getLogger('llm')
 
 
 async def process_user_message(message: str) -> LlmResponse:
-    flow_result = await answer_users_msg(msg=message)
-    logger.info(flow_result)
+    # flow_result = await answer_users_msg(msg=message)
+    # logger.info(flow_result)
+    # response = LlmResponse(
+    #     text=flow_result['reply'],
+    #     decision=flow_result.get("decision", "reject")
+    # )
     response = LlmResponse(
-        text=flow_result['reply'],
-        decision=flow_result.get("decision", "reject")
+        text="mocked data",
+        decision="reject"
     )
     return response

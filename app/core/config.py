@@ -40,6 +40,11 @@ class DBSettings(BaseSettings):
     db_echo: bool = False
 
 
+class SMCSettings(BaseSettings):
+    WEB3_PROVIDER: str = "https://1rpc.io/sepolia"
+    CONTRACT_ADDRESS: str = os.environ.get("CONTRACT_ADDRESS", "0xE2ed2a7BeE11e2C936b7999913E3866D4cfc4f8E")
+
+
 class SuperadminSettings(BaseSettings):
     SUPERADMIN_WALLET_ADDRESS: str = ""
 
@@ -49,3 +54,4 @@ tg_conf = TelegramSettings()
 db_config = DBSettings()
 redis_config = RedisSettings()
 superadmin_settings = SuperadminSettings()
+smc_config = SMCSettings()

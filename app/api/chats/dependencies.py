@@ -5,7 +5,6 @@ from typing import Annotated
 import jsonpickle
 
 from app.core.models.user import User
-from app.llm import process_user_message
 from fastapi import Path, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -108,10 +107,6 @@ async def process_chat_request(
     }
     chat.history.append(_user_message)
 
-    # llm_response = await process_user_message(
-    #     message=data_in.message
-    # )
-
     timestamp = int(datetime.datetime.now().timestamp() * 1000)
     res = ChatResponse(
         exec_logs="",
@@ -132,35 +127,6 @@ async def process_chat_request(
 
     return res
 
-async def process_test_msg(
-        data_in: DataIn,
-        session: AsyncSession = Depends(db_helper.scoped_session_dependency)
-) -> ChatResponse:
-    if not data_in.message:
-        raise HTTPException(
-            detail="No needed data received",
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    _user_message = {
-        "role": "user",
-        "content": data_in.message,
-        "parts": [data_in.message],
-        "timestamp": data_in.timestamp
-    }
-    llm_response = await process_user_message(
-        message=data_in.message
-    )
-
-    timestamp = int(datetime.datetime.now().timestamp() * 1000)
-    res = ChatResponse(
-        exec_logs="",
-        body=llm_response.text,
-        decision=llm_response.decision,
-        timestamp=timestamp
-    )
-
-    return res
-
 request_actions = {
     "askUserAddress()": "askUserAddress()",
     "askTransactionAmount()": "askTransactionAmount()",
@@ -173,15 +139,6 @@ def _init_chatbot_history_context(chat):
     for message_dict in chat.history:
         chat_history_context.append({"role": message_dict["role"], "content": message_dict["content"]})
     return chat_history_context
-
-
-async def chat_to_redis():
-    ...
-
-
-async def chat_from_redis():
-    ...
-
 
 async def start_new_chat(
         user=Depends(auth_dependencies.extract_user_from_access_token),
