@@ -43,7 +43,6 @@ async def process_users_message(
 
     timestamp = int(datetime.datetime.now().timestamp() * 1000)
     result = MessageResponse(
-        exec_logs="",
         body=llm_response.text,
         decision=llm_response.decision,
         timestamp=timestamp
