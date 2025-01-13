@@ -56,7 +56,7 @@ async def get_nonce(
             value=session_id,
             samesite='none',
             secure=True,
-            domain=".rearden.xyz")
+            domain="api.agent.zpoken.dev")
 
         logger.debug("Return nonce %s. Session id: %s", nonce, session_id)
 
