@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import hashlib
 
 from app.llm import process_user_message
@@ -38,7 +38,8 @@ async def process_users_message(
         role="user",
         content=data_in.message,
         tx_hash=data_in.transaction_hash,
-        is_winner= True if llm_response.decision == "approve" else False
+        is_winner= True if llm_response.decision == "approve" else False,
+        created_at=data_in.timestamp
     )
     await crud.create(session=session, user_id=user.id, message=user_msg)
 
@@ -47,11 +48,12 @@ async def process_users_message(
         role="system",
         content=llm_response.text,
         tx_hash=data_in.transaction_hash,
-        is_winner=True if llm_response.decision == "approve" else False
+        is_winner=True if llm_response.decision == "approve" else False,
+        created_at=datetime.now()
     )
     await crud.create(session=session, user_id=user.id, message=system_msg)
 
-    timestamp = int(datetime.datetime.now().timestamp() * 1000)
+    timestamp = int(datetime.now().timestamp() * 1000)
     result = MessageResponse(
         body=llm_response.text,
         decision=llm_response.decision,

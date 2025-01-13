@@ -68,7 +68,7 @@ class MessageFilter(FilterCore):
 
 async def create(session: AsyncSession, user_id: int, message: Message) -> Message | None:
     message = Message(
-        created_at=datetime.now(),
+        created_at=message.created_at,
         role=message.role,
         user_id=user_id,
         content=message.content,
