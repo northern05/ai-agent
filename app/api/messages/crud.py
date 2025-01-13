@@ -2,17 +2,19 @@ from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.engine import Result
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi_sa_orm_filter.main import FilterCore
 from fastapi_sa_orm_filter.operators import Operators as ops
 
-from app.core.models import Message
+from app.core.models import Message, User
 from utils.paginated_response import paginate, PaginatedParams, PaginatedResponse
 from .schemas import MessageSchema
 
 message_query_filters = {
     'created_at': [ops.gte, ops.lte, ops.eq],
-    'user_id': [ops.eq]
+    'user_id': [ops.eq],
+    'wallet': [ops.eq]
 }
 
 
@@ -41,8 +43,18 @@ class MessageFilter(FilterCore):
 
     def get_select_query_part(self):
         return (
-            select(Message).order_by(Message.created_at.desc())
+            select(Message).join(User, User.id == Message.user_id).order_by(Message.created_at.desc())
         )
+
+    def get_query(self, filter_query):
+        base_query = self.get_select_query_part()
+
+        # Parse the filter_query and apply conditions
+        if 'wallet__eq' in filter_query:
+            wallet_value = filter_query.split('wallet__eq=')[1]  # Example parsing
+            base_query = base_query.where(User.wallet == wallet_value)
+
+        return base_query
 
 
 async def create(session: AsyncSession, user_id: int, message: Message) -> Message | None:
