@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 
 class Role(Enum):
-    admin = "user"
-    lender = "system"
+    user = "user"
+    system = "system"
 
 
 class Message(Base):
