@@ -35,6 +35,7 @@ def answer_users_msg(msg: str):
             raise HTTPException(status_code=500, detail=f"No response from llm")
         decision = words[-1].lower()  # Convert to lowercase for case-insensitive comparison
         updated_message = " ".join(words[:-1]).strip()
+        # todo: function calls if approve sending prize
         return updated_message, decision
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")

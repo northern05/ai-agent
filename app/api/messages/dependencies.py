@@ -22,6 +22,8 @@ async def process_users_message(
             detail="No needed data received",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
+
+    # verify msg hash from transaction and users hashed
     encoded_msg = hashlib.sha256(data_in.message.encode('utf-8')).hexdigest()
     encoded_msg_from_transaction = smc_driver.get_msg_hash(data_in.transaction_hash)
     if encoded_msg != encoded_msg_from_transaction:
@@ -30,9 +32,11 @@ async def process_users_message(
             status_code=status.HTTP_400_BAD_REQUEST
         )
 
+    # processing user's message
     llm_response = await process_user_message(
         message=data_in.message
     )
+    # create messages in db
     user_msg = Message(
         user_id=user.id,
         role="user",
