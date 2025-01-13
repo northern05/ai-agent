@@ -39,7 +39,7 @@ async def process_users_message(
         content=data_in.message,
         tx_hash=data_in.transaction_hash,
         is_winner= True if llm_response.decision == "approve" else False,
-        created_at=datetime.fromtimestamp(data_in.timestamp)
+        created_at=datetime.fromtimestamp(data_in.timestamp / 1000)
     )
     await crud.create(session=session, user_id=user.id, message=user_msg)
 
