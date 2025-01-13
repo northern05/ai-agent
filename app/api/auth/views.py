@@ -53,10 +53,7 @@ async def get_nonce(
 
         response.set_cookie(
             key=COOKIE_SESSION_ID_KEY,
-            value=session_id,
-            samesite='none',
-            secure=True,
-            domain="api.agent.zpoken.dev")
+            value=session_id)
 
         logger.debug("Return nonce %s. Session id: %s", nonce, session_id)
 
