@@ -52,7 +52,7 @@ class MessageFilter(FilterCore):
                    User.wallet.label("wallet"))
             .join(User, User.id == Message.user_id)
             .options(joinedload(Message.user))
-            .order_by(Message.created_at.desc())
+            .order_by(Message.created_at.asc())
         )
 
     def get_query(self, filter_query):
