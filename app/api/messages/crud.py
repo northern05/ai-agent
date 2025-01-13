@@ -69,10 +69,11 @@ class MessageFilter(FilterCore):
 async def create(session: AsyncSession, user_id: int, message: Message) -> Message | None:
     message = Message(
         created_at=datetime.now(),
+        role=message.role,
         user_id=user_id,
         content=message.content,
-        response=message.response,
-        decision=message.decision
+        is_winner=message.is_winner,
+        tx_hash=message.tx_hash,
     )
     session.add(message)
     await session.commit()

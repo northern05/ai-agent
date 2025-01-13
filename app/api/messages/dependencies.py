@@ -33,13 +33,23 @@ async def process_users_message(
     llm_response = await process_user_message(
         message=data_in.message
     )
-    msg = Message(
+    user_msg = Message(
         user_id=user.id,
-        decision=llm_response.decision,
-        response=llm_response.text,
-        content=data_in.message
+        role="user",
+        content=data_in.message,
+        tx_hash=data_in.transaction_hash,
+        is_winner= True if llm_response.decision == "approve" else False
     )
-    await crud.create(session=session, user_id=user.id, message=msg)
+    await crud.create(session=session, user_id=user.id, message=user_msg)
+
+    system_msg = Message(
+        user_id=user.id,
+        role="system",
+        content=llm_response.text,
+        tx_hash=data_in.transaction_hash,
+        is_winner=True if llm_response.decision == "approve" else False
+    )
+    await crud.create(session=session, user_id=user.id, message=system_msg)
 
     timestamp = int(datetime.datetime.now().timestamp() * 1000)
     result = MessageResponse(
