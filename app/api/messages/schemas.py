@@ -38,4 +38,3 @@ class DataIn(BaseModel):
     message: str
     timestamp: int
     transaction_hash: str
-    wallet_address: str
