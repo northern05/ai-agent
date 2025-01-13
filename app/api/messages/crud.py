@@ -23,7 +23,11 @@ async def get_all(
         pagination_query: PaginatedParams,
         filter_query: str
 ) -> PaginatedResponse[MessageSchema]:
-    filter_inst = MessageFilter(Message, message_query_filters)
+    filter_inst = MessageFilter(
+        Message,
+        message_query_filters
+    )
+
     stmt = filter_inst.get_query(filter_query)
     response, data = await paginate(
         session=session, query=stmt,
@@ -33,6 +37,7 @@ async def get_all(
     res = []
     for c in data:
         r = MessageSchema.model_validate(c)
+        r.wallet = c.user.wallet
         res.append(r)
     response["data"] = res
 
@@ -43,7 +48,11 @@ class MessageFilter(FilterCore):
 
     def get_select_query_part(self):
         return (
-            select(Message).join(User, User.id == Message.user_id).order_by(Message.created_at.desc())
+            select(Message,
+                   User.wallet.label("wallet"))
+            .join(User, User.id == Message.user_id)
+            .options(joinedload(Message.user))
+            .order_by(Message.created_at.desc())
         )
 
     def get_query(self, filter_query):

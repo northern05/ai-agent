@@ -1,3 +1,4 @@
+from typing import Optional
 import datetime
 from pydantic import BaseModel, ConfigDict
 
@@ -21,6 +22,7 @@ class MessageSchema(MessageBase):
     decision: str
     response: str
     content: str
+    wallet: Optional[str] = None
 
 
 class MessageResponse(BaseModel):
@@ -33,7 +35,6 @@ class MessageResponse(BaseModel):
 
 class DataIn(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    context_data: dict | None = None
     message: str
     timestamp: int
     transaction_hash: str
