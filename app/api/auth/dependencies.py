@@ -8,6 +8,7 @@ from app.core.models import db_helper, User
 from . import crud
 from app.core.config import COOKIE_SESSION_ID_KEY
 
+
 async def extract_user_from_access_token(
         session_id: str = Cookie(alias=COOKIE_SESSION_ID_KEY, default=None),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
@@ -35,10 +36,21 @@ async def extract_user_from_access_token(
 
     address = session_info['siwe'].get("address")
 
-
     user = await crud.select_by_wallet(session=session, wallet=address)
     if not user:
         # logging.warning(f"Not found user by wallet: {address}")
         # raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
         user = await crud.add_user(session=session, wallet=address)
+    return user
+
+
+async def check_wallet(
+        wallet_address: str,
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+) -> User:
+    user = await crud.select_by_wallet(session=session, wallet=wallet_address)
+    if not user:
+        # logging.warning(f"Not found user by wallet: {address}")
+        # raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+        user = await crud.add_user(session=session, wallet=wallet_address)
     return user

@@ -1,4 +1,3 @@
-# pylint: disable=raise-missing-from
 import pickle
 import logging
 from fastapi import APIRouter, Body, Cookie, HTTPException, Response, status, Depends, Request

@@ -14,7 +14,7 @@ from app.core.modules_factory import smc_driver
 
 async def process_users_message(
         data_in: DataIn,
-        user: User = Depends(auth_dependencies.extract_user_from_access_token),
+        user: User = Depends(auth_dependencies.check_wallet),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     if not data_in.message or not data_in.transaction_hash:
