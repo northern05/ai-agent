@@ -43,7 +43,7 @@ class DBSettings(BaseSettings):
 class SMCSettings(BaseSettings):
     WEB3_PROVIDER: str = "https://1rpc.io/sepolia"
     CONTRACT_ADDRESS: str = os.environ.get("CONTRACT_ADDRESS", "0xE2ed2a7BeE11e2C936b7999913E3866D4cfc4f8E")
-
+    PRIZE_ADDRESS_PRIVATE_KEY: str = os.environ.get("PRIZE_ADDRESS_PRIVATE_KEY")
 
 class SuperadminSettings(BaseSettings):
     SUPERADMIN_WALLET_ADDRESS: str = ""

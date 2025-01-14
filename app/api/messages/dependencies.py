@@ -34,7 +34,9 @@ async def process_users_message(
 
     # processing user's message
     llm_response = await process_user_message(
-        message=data_in.message
+        message=data_in.message,
+        smc_driver=smc_driver,
+        user_address=user.wallet
     )
     # create messages in db
     user_msg = Message(
