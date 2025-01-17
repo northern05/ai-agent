@@ -39,7 +39,6 @@ async def get_chat_by_id(
 
 async def get_chat_by_uuid(
         chat_uuid: Annotated[str, Path],
-        user: User = Depends(auth_dependencies.extract_user_from_access_token),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> Chat:
     chat = await crud.select_by_uuid(session=session, chat_uuid=chat_uuid)
@@ -49,24 +48,17 @@ async def get_chat_by_uuid(
             detail=errors.chats.CHAT_NOT_FOUND
         )
 
-    if user.wallet != superadmin_settings.SUPERADMIN_WALLET_ADDRESS and chat.user_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=errors.chats.USER_NOT_OWNER
-        )
-
     return chat
 
 
 async def get_extended_chat_by_uuid(
         chat_uuid: Annotated[str, Path],
-        user=Depends(auth_dependencies.extract_user_from_access_token),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> ExtendedChatSchema:
-    chat = await get_chat_by_uuid(chat_uuid, user, session)
+    chat = await get_chat_by_uuid(chat_uuid,  session)
 
     chat = ExtendedChatSchema.from_orm(chat)
-    history = redis_db.get(chat.uuid)
+    history = await redis_db.get(chat.uuid)
     if history:
         chat.history = json.loads(history)
     else:
@@ -152,7 +144,7 @@ def _init_chatbot_history_context(chat):
     return chat_history_context
 
 async def start_new_chat(
-        user=Depends(auth_dependencies.extract_user_from_access_token),
+        user: User = Depends(auth_dependencies.check_wallet),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     existing_chat = await crud.get_chat_by_user_id(session=session, user_id=user.id)

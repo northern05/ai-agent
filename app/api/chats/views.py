@@ -23,16 +23,14 @@ logger = logging.getLogger('chats/views')
     response_model=PaginatedResponse[ChatSchema],
 )
 async def get_all_chats(
-        user: User = Depends(auth_dependencies.extract_user_from_access_token),
         pagination_query: PaginatedParams = Depends(),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
     logger.info("Received get all chats request")
 
-    res = await crud.get_all(
+    res = await crud.get_all_chats(
         session=session,
         pagination_query=pagination_query,
-        user_id=user.id if user.wallet != superadmin_settings.SUPERADMIN_WALLET_ADDRESS else None
     )
     return res
 

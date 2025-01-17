@@ -12,6 +12,28 @@ from .schemas import ChatUpdate, ChatUpdatePartial
 from ...core.models.base import State
 
 
+async def get_all_chats(
+        session: AsyncSession,
+        pagination_query: PaginatedParams,
+) -> PaginatedResponse[ChatSchema]:
+    stmt = (
+        select(Chat)
+        .filter(Chat.state != State.deleted)
+        .order_by(Chat.created_at.desc())
+    )
+    response, data = await paginate(
+        session=session, query=stmt,
+        page_size=pagination_query.page_size, page_number=pagination_query.page_number
+    )
+
+    res = []
+    for c in data:
+        r = ChatSchema.model_validate(c)
+        res.append(r)
+    response["data"] = res
+
+    return response
+
 async def get_all(
         session: AsyncSession,
         pagination_query: PaginatedParams,
