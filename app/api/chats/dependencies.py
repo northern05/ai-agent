@@ -120,7 +120,6 @@ async def process_chat_request(
 
     timestamp = int(datetime.datetime.now().timestamp() * 1000)
     res = ChatResponse(
-        exec_logs="",
         body=llm_response.text,
         decision=llm_response.decision,
         timestamp=timestamp
@@ -156,6 +155,13 @@ async def start_new_chat(
         user=Depends(auth_dependencies.extract_user_from_access_token),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ):
+    existing_chat = await crud.get_chat_by_user_id(session=session, user_id=user.id)
+    if existing_chat:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Chat already exists for this user."
+        )
+
     chat = await crud.create(session=session, user_id=user.id)
     redis_db.set(chat.uuid, json.dumps([]))
 

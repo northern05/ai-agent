@@ -48,6 +48,16 @@ async def create(session: AsyncSession, user_id: int) -> Chat | None:
     return chat
 
 
+async def get_chat_by_user_id(session: AsyncSession, user_id: int) -> Chat | None:
+    stmt = (
+        select(Chat)
+        .filter(Chat.state != State.deleted.value)
+        .filter(Chat.user_id == user_id)
+    )
+    result: Result = await session.execute(stmt)
+    chat = result.scalars().first()
+    return chat
+
 async def select_by_id(session: AsyncSession, chat_id: int) -> Chat | None:
     stmt = (
         select(Chat)
