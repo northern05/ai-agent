@@ -20,4 +20,4 @@ openai_client = OpenAI(api_key=config.OPENAI_API_KEY)
 tg_bot = telegram_bot.TelegramBot(token=tg_conf.TG_TOKEN, chat=tg_conf.TG_CHAT_ID)
 
 # -------- Initialize SMC Driver --------------------
-smc_driver = SMCDriver(web_provider=smc_config.WEB3_PROVIDER, contract_address=smc_config.CONTRACT_ADDRESS, prize_key=smc_config.PRIZE_ADDRESS_PRIVATE_KEY)
+smc_driver = SMCDriver(web_provider=smc_config.WEB3_PROVIDER, contract_address=smc_config.CONTRACT_ADDRESS, prize_key=smc_config.PRIZE_ADDRESS_PRIVATE_KEY, bonding_contract_address=smc_config.CONTRACT_ADDRESS)

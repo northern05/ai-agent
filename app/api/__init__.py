@@ -9,5 +9,5 @@ router = APIRouter()
 
 router.include_router(router=auth_router, prefix="/auth")
 router.include_router(router=chats_router, prefix="/chats")
-router.include_router(router=msg_router, prefix="/messages")
+# router.include_router(router=msg_router, prefix="/messages")
 router.include_router(router=statistics_router, prefix="/statistics")

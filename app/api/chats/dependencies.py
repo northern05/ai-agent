@@ -1,6 +1,7 @@
 import datetime
+import hashlib
 import json
-from dataclasses import dataclass
+
 from typing import Annotated
 import jsonpickle
 
@@ -11,12 +12,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.auth import dependencies as auth_dependencies
 from app.core.errors import errors
 from app.core.models import db_helper, Chat
-from app.core.modules_factory import redis_db
+from app.core.modules_factory import redis_db, smc_driver
 from . import crud
 from .schemas import ChatResponse, ExtendedChatSchema, DataIn
 
 
 from app.core.config import superadmin_settings
+from ...core.models.base import State
+from ...core.models.message import Role
+from ...llm import process_user_message
 
 
 async def get_chat_by_id(
@@ -70,57 +74,65 @@ async def get_extended_chat_by_uuid(
 
     return chat
 
-
-@dataclass
-class ChatContext:
-    current_input: str
-    current_dt: datetime.datetime
-    history: list[dict]
-    minimized_history: list[dict]
-    chat_id: str
-
-
 async def process_chat_request(
         data_in: DataIn,
         chat: ExtendedChatSchema = Depends(get_extended_chat_by_uuid),
+        user: User = Depends(auth_dependencies.check_wallet),
         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
 ) -> ChatResponse:
+    if chat.state == State.deleted:
+        raise HTTPException(
+            detail="Chat is already deleted",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
     if not data_in.message or not data_in.msg_hash:
         raise HTTPException(
             detail="No needed data received",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    context = ChatContext(
-        current_input=data_in.message,
-        current_dt=datetime.datetime.now(),
-        history=chat.history,
-        minimized_history=_init_chatbot_history_context(chat),
-        chat_id=chat.uuid
+    # verify msg hash from transaction and users hashed
+    encoded_msg = hashlib.sha256(data_in.message.encode('utf-8')).hexdigest()
+    encoded_msg_from_transaction = smc_driver.get_swap_msg_hash(data_in.transaction_hash)
+    if encoded_msg != encoded_msg_from_transaction:
+        raise HTTPException(
+            detail="Messages doesn't match!",
+            status_code=status.HTTP_400_BAD_REQUEST
+        )
+
+    # processing user's message
+    llm_response = await process_user_message(
+        message=data_in.message,
+        smc_driver=smc_driver,
+        user_address=user.wallet
     )
 
     _user_message = {
-        "role": "user",
+        "role": Role.user,
         "content": data_in.message,
+        "tx_hash": data_in.transaction_hash,
         "parts": [data_in.message],
-        "timestamp": data_in.timestamp
+        "timestamp": data_in.timestamp,
+        "is_approved": True if llm_response.decision == "approveSwap" else False,
     }
     chat.history.append(_user_message)
 
     timestamp = int(datetime.datetime.now().timestamp() * 1000)
     res = ChatResponse(
         exec_logs="",
-        body="mocked msg",
-        decision="reject",
+        body=llm_response.text,
+        decision=llm_response.decision,
         timestamp=timestamp
     )
 
     chat.history.append({
-        "role": "system",
-        "content": "mocked msg",
-        "parts": ["mocked msg"],
+        "role": Role.system,
+        "content": llm_response.text,
+        "parts": [llm_response.text],
         "timestamp": timestamp,
-        "decision": "reject"
+        "is_approved": True if llm_response.decision == "approveSwap" else False,
+        "decision": llm_response.decision
     })
 
     redis_db.set(chat.uuid, jsonpickle.encode(chat.history))

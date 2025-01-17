@@ -10,6 +10,7 @@ from app.core.models import db_helper, User, Message
 from . import crud
 from .schemas import MessageSchema, DataIn, MessageResponse
 from app.core.modules_factory import smc_driver
+from ...core.models.message import Role
 
 
 async def process_users_message(
@@ -41,7 +42,7 @@ async def process_users_message(
     # create messages in db
     user_msg = Message(
         user_id=user.id,
-        role="user",
+        role=Role.user,
         content=data_in.message,
         tx_hash=data_in.transaction_hash,
         is_winner= True if llm_response.decision == "approve" else False,
@@ -51,7 +52,7 @@ async def process_users_message(
 
     system_msg = Message(
         user_id=user.id,
-        role="system",
+        role=Role.system,
         content=llm_response.text,
         tx_hash=data_in.transaction_hash,
         is_winner=True if llm_response.decision == "approve" else False,
